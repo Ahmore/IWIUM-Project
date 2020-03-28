@@ -13,11 +13,8 @@ import javax.rules.RuleServiceProviderManager;
 import javax.rules.StatelessRuleSession;
 import javax.rules.admin.RuleAdministrator;
 import javax.rules.admin.RuleExecutionSet;
-import robocode.BattleEndedEvent;
-import robocode.HitByBulletEvent;
-import robocode.Robot;
-import robocode.ScannedRobotEvent;
 
+import robocode.*;
 
 
 public class ADRobot extends Robot {
@@ -144,9 +141,32 @@ public class ADRobot extends Robot {
 		}	
 		// turnLeft(90 - e.getBearing());
 		setRobotState("run");
-		
 	}
-	
+
+	public void onHitWall(HitWallEvent e) {
+		setRobotState("onHitWall");
+		try {
+			turnAngle.setAngle(90 - e.getBearing());
+			ruleSession.executeRules(props);
+		} catch (InvalidRuleSessionException | RemoteException e1) {
+			e1.printStackTrace();
+		}
+		setRobotState("run");
+	}
+
+	public void onHitRobot(HitRobotEvent e) {
+		setRobotState("onHitRobot");
+		try {
+			if (e.isMyFault()) {
+				turnAngle.setAngle(180);
+				ruleSession.executeRules(props);
+			}
+		} catch (InvalidRuleSessionException | RemoteException e1) {
+			e1.printStackTrace();
+		}
+		setRobotState("run");
+	}
+
 	public void onBattleEnded(BattleEndedEvent e) {
 		try {
 			ruleSession.release();
